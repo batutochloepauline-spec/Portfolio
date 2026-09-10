@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loam & Co. — Demo Shopify Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --clay: #B5654A;
+    --sage: #7C8B6F;
+    --cream: #F3EDE3;
+    --espresso: #2E241E;
+    --ink: #221B16;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Manrope', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+  h1, h2, h3 { font-family: 'Cormorant', serif; }
+
+  .marquee {
+    background: var(--espresso);
+    color: var(--cream);
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 8px 0;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+  .marquee-track {
+    display: inline-block;
+    animation: scroll-left 22s linear infinite;
+  }
+  .marquee-track span { margin: 0 24px; }
+  @keyframes scroll-left {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 22px 6%;
+    position: sticky;
+    top: 0;
+    background: rgba(243,237,227,0.92);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+  }
+  .logo { font-family: 'Cormorant', serif; font-weight: 700; font-size: 1.5rem; color: var(--espresso); }
+  .nav-links { display: flex; gap: 28px; list-style: none; align-items: center; }
+  .nav-links a { text-decoration: none; color: var(--ink); font-weight: 500; font-size: 0.9rem; }
+  .cart-icon {
+    position: relative;
+    cursor: pointer;
+    background: var(--espresso);
+    color: var(--cream);
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    transition: transform 0.2s ease;
+  }
+  .cart-icon:hover { transform: scale(1.08); }
+  .cart-count {
+    position: absolute;
+    top: -4px; right: -4px;
+    background: var(--clay);
+    color: white;
+    font-size: 0.68rem;
+    font-weight: 700;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.2s ease;
+  }
+  .cart-count.bump { animation: bump 0.35s ease; }
+  @keyframes bump { 0% { transform: scale(1); } 50% { transform: scale(1.5); } 100% { transform: scale(1); } }
+
+  /* HERO */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 40px 6% 80px;
+    gap: 40px;
+  }
+  .hero-text .kicker { color: var(--clay); font-weight: 600; font-size: 0.85rem; letter-spacing: 0.04em; margin-bottom: 14px; text-transform: uppercase; }
+  .hero-text h1 {
+    font-size: clamp(2.4rem, 5vw, 3.6rem);
+    color: var(--espresso);
+    line-height: 1.1;
+    font-weight: 600;
+    max-width: 12ch;
+  }
+  .hero-text p { margin-top: 18px; max-width: 42ch; color: #4A4038; }
+  .btn {
+    display: inline-block;
+    margin-top: 26px;
+    padding: 14px 30px;
+    background: var(--espresso);
+    color: var(--cream);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.92rem;
+    border-radius: 3px;
+    transition: transform 0.2s ease, background 0.2s ease;
+    border: none;
+    cursor: pointer;
+  }
+  .btn:hover { background: var(--clay); transform: translateY(-2px); }
+
+  .hero-visual {
+    aspect-ratio: 4/3;
+    border-radius: 8px;
+    background: linear-gradient(155deg, #E4C9A8, var(--clay) 60%, var(--sage));
+    position: relative;
+    overflow: hidden;
+    display: flex; align-items: flex-end; justify-content: center;
+  }
+  .hero-visual::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.25), transparent 50%);
+  }
+  .hero-visual svg { width: 78%; position: relative; z-index: 1; }
+
+  /* REVEAL */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* PRODUCTS */
+  .section { padding: 70px 6%; }
+  .section-head { max-width: 55ch; margin-bottom: 40px; }
+  .section-head .eyebrow { color: var(--sage); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+  .section-head h2 { font-size: clamp(1.8rem, 3vw, 2.4rem); color: var(--espresso); font-weight: 600; }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 26px;
+  }
+  .product-card {
+    background: white;
+    border-radius: 6px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .product-card:hover { transform: translateY(-6px); box-shadow: 0 18px 34px rgba(46,36,30,0.12); }
+  .product-image {
+    aspect-ratio: 1/1;
+    position: relative;
+    overflow: hidden;
+  }
+  .product-image .fill { position: absolute; inset: 0; transition: transform 0.5s ease; display: flex; align-items: center; justify-content: center; }
+  .product-card:hover .product-image .fill { transform: scale(1.08); }
+  .product-image.p1 .fill { background: linear-gradient(155deg, #E4C9A8, #C97B5C); }
+  .product-image.p2 .fill { background: linear-gradient(155deg, #C9D4BE, #8B9A7E); }
+  .product-image.p3 .fill { background: linear-gradient(155deg, #F1E8D2, #D9C9A8); }
+  .product-image.p4 .fill { background: linear-gradient(155deg, #C9AFA3, #A9847A); }
+  .product-image svg { width: 58%; height: 58%; }
+  .product-body { padding: 18px 20px 22px; }
+  .product-body .ptag { font-size: 0.68rem; color: var(--sage); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+  .product-body h3 { font-size: 1.15rem; color: var(--espresso); font-weight: 600; margin-top: 4px; }
+  .product-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 14px;
+  }
+  .price { font-family: 'Cormorant', serif; font-weight: 700; font-size: 1.25rem; color: var(--clay); }
+  .add-btn {
+    background: var(--espresso);
+    color: var(--cream);
+    border: none;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .add-btn:hover { background: var(--clay); }
+  .add-btn.added { background: var(--sage); transform: scale(1.15); }
+
+  /* TESTIMONIAL */
+  .testimonial-section { background: var(--espresso); color: var(--cream); text-align: center; }
+  .testimonial-section .quote {
+    font-family: 'Cormorant', serif;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-style: italic;
+    max-width: 40ch;
+    margin: 0 auto;
+  }
+  .testimonial-section .attribution { margin-top: 18px; font-size: 0.85rem; color: #C9BFAE; }
+
+  /* NEWSLETTER */
+  .newsletter {
+    background: var(--sage);
+    color: white;
+    text-align: center;
+    padding: 60px 6%;
+  }
+  .newsletter h2 { color: white; font-size: clamp(1.6rem, 3vw, 2.1rem); }
+  .newsletter p { margin-top: 10px; color: #E7EBE2; }
+  .newsletter-form {
+    margin-top: 24px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .newsletter-form input {
+    padding: 13px 18px;
+    border: none;
+    border-radius: 3px;
+    min-width: 260px;
+    font-family: 'Manrope', sans-serif;
+  }
+  .newsletter-form button {
+    background: var(--espresso);
+    color: white;
+    border: none;
+    padding: 13px 24px;
+    border-radius: 3px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .newsletter-form button:hover { background: #1b1510; }
+
+  footer {
+    text-align: center;
+    padding: 26px 6%;
+    font-size: 0.82rem;
+    color: #7A6F62;
+  }
+
+  /* CART DRAWER */
+  .cart-overlay {
+    position: fixed; inset: 0;
+    background: rgba(34,27,22,0.4);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 300;
+  }
+  .cart-overlay.open { opacity: 1; pointer-events: auto; }
+  .cart-drawer {
+    position: fixed;
+    top: 0; right: 0;
+    width: min(380px, 90vw);
+    height: 100%;
+    background: var(--cream);
+    z-index: 301;
+    transform: translateX(100%);
+    transition: transform 0.35s ease;
+    display: flex;
+    flex-direction: column;
+    padding: 26px;
+  }
+  .cart-drawer.open { transform: translateX(0); }
+  .cart-drawer-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px;
+  }
+  .cart-drawer-head h3 { font-size: 1.3rem; color: var(--espresso); }
+  .close-cart { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--espresso); }
+  .cart-items { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+  .cart-item {
+    display: flex; gap: 12px; align-items: center;
+    background: white; border-radius: 6px; padding: 10px;
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+  .cart-item .thumb { width: 46px; height: 46px; border-radius: 4px; flex-shrink: 0; }
+  .cart-item .info { flex: 1; }
+  .cart-item .info .name { font-size: 0.88rem; font-weight: 600; color: var(--espresso); }
+  .cart-item .info .price { font-size: 0.82rem; margin-top: 2px; }
+  .cart-empty { color: #8A7D6E; text-align: center; margin-top: 40px; font-size: 0.9rem; }
+  .cart-footer { border-top: 1px solid #DED4C4; padding-top: 16px; margin-top: 16px; }
+  .cart-total { display: flex; justify-content: space-between; font-weight: 700; color: var(--espresso); margin-bottom: 14px; }
+  .checkout-btn { width: 100%; text-align: center; }
+
+  @media (max-width: 760px) {
+    .hero { grid-template-columns: 1fr; }
+    .nav-links a:not(.cart-icon) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="marquee">
+  <div class="marquee-track">
+    <span>✧ Free shipping over $75</span>
+    <span>✧ Hand-thrown in small batches</span>
+    <span>✧ New kiln batch every Friday</span>
+    <span>✧ Free shipping over $75</span>
+    <span>✧ Hand-thrown in small batches</span>
+    <span>✧ New kiln batch every Friday</span>
+  </div>
+</div>
+
+<nav>
+  <div class="logo">Loam & Co.</div>
+  <ul class="nav-links">
+    <li><a href="#shop">Shop</a></li>
+    <li><a href="#about">Our Story</a></li>
+    <li><div class="cart-icon" id="cartIcon">🛒<span class="cart-count" id="cartCount">0</span></div></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="hero-text">
+    <div class="kicker">Handmade ceramics</div>
+    <h1>Clay, shaped slow.</h1>
+    <p>Every piece thrown, glazed, and fired by hand in small batches — made to be used daily, not just displayed.</p>
+    <a href="#shop" class="btn">Shop the collection</a>
+  </div>
+  <div class="hero-visual">
+    <svg viewBox="0 0 300 180" fill="none">
+      <ellipse cx="150" cy="165" rx="130" ry="10" fill="#2E241E" opacity="0.15"/>
+      <path d="M60 100 h30 v28 a15 15 0 0 1 -15 15 a15 15 0 0 1 -15 -15 z" fill="#F3EDE3"/>
+      <path d="M90 106 h6 a8 8 0 0 1 0 16 h-6" stroke="#F3EDE3" stroke-width="3" fill="none"/>
+      <ellipse cx="75" cy="100" rx="15" ry="3" fill="#F3EDE3" opacity="0.7"/>
+      <path d="M120 125 a26 16 0 0 0 52 0 z" fill="#2E241E" opacity="0.75"/>
+      <ellipse cx="146" cy="125" rx="26" ry="5.5" fill="#2E241E" opacity="0.4"/>
+      <path d="M205 70 h16 l3 11 a19 19 0 0 1 5 13 c0 13 -8 16 -8 24 h-16 c0 -8 -8 -11 -8 -24 a19 19 0 0 1 5 -13 z" fill="#F3EDE3"/>
+    </svg>
+  </div>
+</section>
+
+<section class="section" id="shop">
+  <div class="section-head reveal">
+    <div class="eyebrow">New arrivals</div>
+    <h2>This week's kiln batch</h2>
+  </div>
+  <div class="product-grid">
+    <div class="product-card reveal" data-name="Terracotta Mug" data-price="28">
+      <div class="product-image p1"><div class="fill">
+        <svg viewBox="0 0 100 100" fill="none">
+          <path d="M28 32 h38 v40 a19 19 0 0 1 -19 19 a19 19 0 0 1 -19 -19 z" fill="#2E241E" opacity="0.85"/>
+          <path d="M66 40 h8 a10 10 0 0 1 0 20 h-8" stroke="#2E241E" stroke-width="4" fill="none" opacity="0.85"/>
+          <ellipse cx="47" cy="32" rx="19" ry="4" fill="#2E241E" opacity="0.5"/>
+        </svg>
+      </div></div>
+      <div class="product-body">
+        <div class="ptag">Mugs</div>
+        <h3>Terracotta Mug</h3>
+        <div class="product-footer">
+          <span class="price">$28</span>
+          <button class="add-btn" onclick="addToCart(this, 'Terracotta Mug', 28, 'p1')">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="product-card reveal" data-name="Sage Serving Bowl" data-price="46">
+      <div class="product-image p2"><div class="fill">
+        <svg viewBox="0 0 100 100" fill="none">
+          <path d="M18 45 a32 20 0 0 0 64 0 z" fill="#2E241E" opacity="0.85"/>
+          <ellipse cx="50" cy="45" rx="32" ry="7" fill="#2E241E" opacity="0.5"/>
+        </svg>
+      </div></div>
+      <div class="product-body">
+        <div class="ptag">Bowls</div>
+        <h3>Sage Serving Bowl</h3>
+        <div class="product-footer">
+          <span class="price">$46</span>
+          <button class="add-btn" onclick="addToCart(this, 'Sage Serving Bowl', 46, 'p2')">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="product-card reveal" data-name="Sand Dinner Plate" data-price="34">
+      <div class="product-image p3"><div class="fill">
+        <svg viewBox="0 0 100 100" fill="none">
+          <ellipse cx="50" cy="50" rx="34" ry="34" fill="#6E564D" opacity="0.7"/>
+          <ellipse cx="50" cy="50" rx="22" ry="22" fill="#2E241E" opacity="0.6"/>
+        </svg>
+      </div></div>
+      <div class="product-body">
+        <div class="ptag">Plates</div>
+        <h3>Sand Dinner Plate</h3>
+        <div class="product-footer">
+          <span class="price">$34</span>
+          <button class="add-btn" onclick="addToCart(this, 'Sand Dinner Plate', 34, 'p3')">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="product-card reveal" data-name="Espresso Vase" data-price="52">
+      <div class="product-image p4"><div class="fill">
+        <svg viewBox="0 0 100 100" fill="none">
+          <path d="M40 20 h20 l4 14 a24 24 0 0 1 6 16 c0 16 -10 20 -10 30 h-20 c0 -10 -10 -14 -10 -30 a24 24 0 0 1 6 -16 z" fill="#2E241E" opacity="0.85"/>
+        </svg>
+      </div></div>
+      <div class="product-body">
+        <div class="ptag">Vases</div>
+        <h3>Espresso Vase</h3>
+        <div class="product-footer">
+          <span class="price">$52</span>
+          <button class="add-btn" onclick="addToCart(this, 'Espresso Vase', 52, 'p4')">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section testimonial-section">
+  <p class="quote reveal">"I didn't expect a mug to change my morning routine, but here we are. Every piece feels like it was made for my hands specifically."</p>
+  <p class="attribution reveal">— Renz M., repeat customer</p>
+</section>
+
+<section class="newsletter">
+  <h2 class="reveal">Get first access to new batches</h2>
+  <p class="reveal">Each kiln batch is limited — subscribers get a 24-hour head start before we post publicly.</p>
+  <div class="newsletter-form reveal">
+    <input type="email" placeholder="you@email.com">
+    <button>Notify me</button>
+  </div>
+</section>
+
+<footer>
+  Loam & Co. — Demo Shopify-style store · Built to show product interactions, cart flow, and transitions
+</footer>
+
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-drawer-head">
+    <h3>Your Cart</h3>
+    <button class="close-cart" onclick="closeCart()">×</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <p class="cart-empty" id="cartEmptyMsg">Your cart is empty</p>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total"><span>Total</span><span id="cartTotal">$0</span></div>
+    <a href="#" class="btn checkout-btn">Checkout</a>
+  </div>
+</div>
+
+<script>
+  let cart = [];
+
+  function addToCart(btn, name, price, imgClass) {
+    cart.push({ name, price, imgClass });
+    updateCartUI();
+
+    btn.classList.add('added');
+    btn.textContent = '✓';
+    setTimeout(() => {
+      btn.classList.remove('added');
+      btn.textContent = '+';
+    }, 700);
+
+    const countEl = document.getElementById('cartCount');
+    countEl.classList.remove('bump');
+    void countEl.offsetWidth;
+    countEl.classList.add('bump');
+
+    openCart();
+  }
+
+  function updateCartUI() {
+    document.getElementById('cartCount').textContent = cart.length;
+    const itemsEl = document.getElementById('cartItems');
+    const emptyMsg = document.getElementById('cartEmptyMsg');
+
+    if (cart.length === 0) {
+      itemsEl.innerHTML = '<p class="cart-empty">Your cart is empty</p>';
+    } else {
+      itemsEl.innerHTML = cart.map(item => `
+        <div class="cart-item">
+          <div class="thumb product-image ${item.imgClass}" style="aspect-ratio:1/1;"><div class="fill" style="position:static;width:100%;height:100%;"></div></div>
+          <div class="info">
+            <div class="name">${item.name}</div>
+            <div class="price">$${item.price}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    document.getElementById('cartTotal').textContent = '$' + total;
+  }
+
+  function openCart() {
+    document.getElementById('cartDrawer').classList.add('open');
+    document.getElementById('cartOverlay').classList.add('open');
+  }
+  function closeCart() {
+    document.getElementById('cartDrawer').classList.remove('open');
+    document.getElementById('cartOverlay').classList.remove('open');
+  }
+  document.getElementById('cartIcon').addEventListener('click', openCart);
+
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
